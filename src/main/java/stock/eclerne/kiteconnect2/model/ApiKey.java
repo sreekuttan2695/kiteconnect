@@ -16,6 +16,15 @@ public class ApiKey {
     @Column(name = "api_secret", nullable = false)
     private String apiSecret;
 
+    @Column(name = "user_id", nullable = false)
+    private String userId;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "totp_key", nullable = false)
+    private String totpKey;
+
     // Getters and Setters
 
     public int getId() {
@@ -40,5 +49,29 @@ public class ApiKey {
 
     public void setApiSecret(String apiSecret) {
         this.apiSecret = apiSecret;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getTotpKey() {
+        return totpKey;
+    }
+
+    public void setTotpKey(String totpKey) {
+        this.totpKey = totpKey;
     }
 }

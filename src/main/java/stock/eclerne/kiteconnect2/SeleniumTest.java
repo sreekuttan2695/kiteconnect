@@ -11,7 +11,7 @@ public class SeleniumTest {
         WebDriver driver = new ChromeDriver();
 
         // Open a website
-        driver.get("https://www.example.com");
+        driver.get("https://www.google.com");
 
         // Perform actions on the website
         System.out.println("Title: " + driver.getTitle());

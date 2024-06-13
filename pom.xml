@@ -71,12 +71,12 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.0.0</version>
+            <version>4.21.0</version>
         </dependency>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-devtools-v94</artifactId>
-            <version>4.0.0</version>
+            <artifactId>selenium-devtools-v125</artifactId>
+            <version>4.21.0</version>
         </dependency>
     </dependencies>
     <build>
