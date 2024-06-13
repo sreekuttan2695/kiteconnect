@@ -68,6 +68,16 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/kiteconnect.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-devtools-v94</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
