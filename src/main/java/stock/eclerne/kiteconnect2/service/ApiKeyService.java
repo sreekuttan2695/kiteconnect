@@ -11,7 +11,7 @@ public class ApiKeyService {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
 
-    public ApiKey getApiKeyDetails(String userId) {
+    public ApiKey getApiKeyDetailsByUserId(String userId) {
         return apiKeyRepository.findByUserId(userId);
     }
 

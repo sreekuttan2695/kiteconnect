@@ -5,15 +5,11 @@ import com.zerodhatech.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import stock.eclerne.kiteconnect2.model.ApiKey;
-import stock.eclerne.kiteconnect2.repository.ApiKeyRepository;
 
 import java.io.IOException;
 
 @Service
 public class AccessTokenService {
-
-    @Autowired
-    private ApiKeyRepository apiKeyRepository;
 
     @Autowired
     private KiteService kiteService;
@@ -23,14 +19,15 @@ public class AccessTokenService {
 
     @Autowired
     private SeleniumService seleniumService;
+
     @Autowired
     private ApiKeyService apiKeyService;
 
     public void updateAccessToken(String userId, String accessToken) {
-        ApiKey apiKey = apiKeyRepository.findByUserId(userId);
+        ApiKey apiKey = apiKeyService.getApiKeyDetailsByUserId(userId);
         if (apiKey != null) {
             apiKey.setAccessToken(accessToken);
-            apiKeyRepository.save(apiKey);
+            apiKeyService.saveApiKey(apiKey);
         }
     }
     //As it is a single user app, we are not passing user id as an arg to generate a session
