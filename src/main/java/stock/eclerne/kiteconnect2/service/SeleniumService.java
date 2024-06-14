@@ -26,20 +26,19 @@ public class SeleniumService {
 
             WebElement userIdField = driver.findElement(By.xpath("//input[@id='userid']"));
             WebElement passwordField = driver.findElement(By.xpath("//input[@id='password']"));
-            WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
-
+            WebElement loginButton = driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[2]/form/div[4]/button"));
             userIdField.sendKeys(userId);
             passwordField.sendKeys(password);
             loginButton.click();
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            WebElement totpField = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='totp']")));
+            WebElement totpField = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div[2]/form/div[1]/input")));
 
             // Generated the TOTP using the secret key from AccessTokenService class
             totpField.sendKeys(otp);
 
-            WebElement totpSubmitButton = driver.findElement(By.xpath("//button[@type='submit']"));
-            totpSubmitButton.click();
+            //WebElement totpSubmitButton = driver.findElement(By.xpath("//button[@type='submit']"));
+            //totpSubmitButton.click();
 
             wait.until(ExpectedConditions.urlContains("request_token="));
             String currentUrl = driver.getCurrentUrl();
