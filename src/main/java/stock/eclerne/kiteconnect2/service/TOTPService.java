@@ -1,12 +1,14 @@
 package stock.eclerne.kiteconnect2.service;
 
-import de.taimos.totp.TOTP;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TOTPService {
 
-    public String generateTOTP(String totpKey) {
-        return TOTP.getOTP(totpKey);
+    private final GoogleAuthenticator gAuth = new GoogleAuthenticator();
+
+    public String generateTOTP(String secretKey) {
+        return Integer.toString(gAuth.getTotpPassword(secretKey));
     }
 }
