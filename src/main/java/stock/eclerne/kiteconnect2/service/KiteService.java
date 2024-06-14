@@ -1,23 +1,23 @@
 package stock.eclerne.kiteconnect2.service;
 
-import com.zerodhatech.kiteconnect.KiteConnect;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zerodhatech.models.User;
+import com.zerodhatech.kiteconnect.KiteConnect;
 import org.springframework.stereotype.Service;
-import stock.eclerne.kiteconnect2.model.ApiKey;
+
+import java.io.IOException;
 
 @Service
 public class KiteService {
 
-    private KiteConnect kiteConnect;
-
-    @Autowired
-    private ApiService apiService;
-
-    public String getLoginUrl() throws KiteException {
-        ApiKey apiDetails = apiService.getApiDetails();
-        kiteConnect = new KiteConnect(apiDetails.getApiKey());
-        kiteConnect.setUserId(apiDetails.getUserId());
+    public String getLoginUrl(String apiKey) {
+        KiteConnect kiteConnect = new KiteConnect(apiKey);
         return kiteConnect.getLoginURL();
+    }
+
+
+    public User generateSession(String apiKey, String apiSecret, String requestToken) throws KiteException, IOException {
+        KiteConnect kiteConnect = new KiteConnect(apiKey);
+        return kiteConnect.generateSession(requestToken, apiSecret);
     }
 }

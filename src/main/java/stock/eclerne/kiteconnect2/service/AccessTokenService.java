@@ -1,32 +1,50 @@
 package stock.eclerne.kiteconnect2.service;
 
-import com.zerodhatech.kiteconnect.KiteConnect;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
 import com.zerodhatech.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import stock.eclerne.kiteconnect2.model.ApiKey;
-import org.springframework.jdbc.core.JdbcTemplate;
+import stock.eclerne.kiteconnect2.repository.ApiKeyRepository;
+
+import java.io.IOException;
 
 @Service
 public class AccessTokenService {
 
     @Autowired
-    private ApiService apiService;
+    private ApiKeyRepository apiKeyRepository;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private KiteService kiteService;
 
-    public void generateAndSaveAccessToken(String requestToken) throws KiteException {
-        ApiKey apiDetails = apiService.getApiDetails();
-        KiteConnect kiteConnect = new KiteConnect(apiDetails.getApiKey());
+    @Autowired
+    private TOTPService totpService;
 
-        User user = kiteConnect.generateSession(requestToken, apiDetails.getApiSecret());
-        String accessToken = user.accessToken;
+    @Autowired
+    private SeleniumService seleniumService;
+    @Autowired
+    private ApiKeyService apiKeyService;
 
-        // Save access token in database
-        String sql =  "UPDATE api_keys SET access_token = ? WHERE api_key = ?";
-        jdbcTemplate.update(sql, accessToken, apiDetails.getApiKey());
+    public void updateAccessToken(String userId, String accessToken) {
+        ApiKey apiKey = apiKeyRepository.findByUserId(userId);
+        if (apiKey != null) {
+            apiKey.setAccessToken(accessToken);
+            apiKeyRepository.save(apiKey);
+        }
+    }
+    //As it is a single user app, we are not passing user id as an arg to generate a session
+
+    public void generateAndSaveAccessToken() throws KiteException, IOException {
+        ApiKey apiKey = apiKeyService.getApiKey(); //Gets data from DB
+        if (apiKey.getApiKey() != null && apiKey.getApiSecret() != null) {
+            String loginUrl = kiteService.getLoginUrl(apiKey.getApiKey());
+            String otp = totpService.generateTOTP(apiKey.getTotpKey());
+            String requestToken = seleniumService.getRequestToken(loginUrl, apiKey.getUserId(), apiKey.getPassword(), otp);
+            User user = kiteService.generateSession(apiKey.getApiKey(), apiKey.getApiSecret(), requestToken);
+            if (user != null && user.accessToken != null) {
+                updateAccessToken(apiKey.getUserId(), user.accessToken);
+            }
+        }
     }
 }

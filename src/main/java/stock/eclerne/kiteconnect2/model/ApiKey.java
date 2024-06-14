@@ -1,7 +1,8 @@
 package stock.eclerne.kiteconnect2.model;
-
+import lombok.Data;
 import jakarta.persistence.*;
 
+@Data
 @Entity
 @Table(name = "api_keys")
 public class ApiKey {
@@ -22,56 +23,11 @@ public class ApiKey {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "access_token")
+    private String accessToken;
+
     @Column(name = "totp_key", nullable = false)
     private String totpKey;
 
     // Getters and Setters
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
-    public String getApiSecret() {
-        return apiSecret;
-    }
-
-    public void setApiSecret(String apiSecret) {
-        this.apiSecret = apiSecret;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getTotpKey() {
-        return totpKey;
-    }
-
-    public void setTotpKey(String totpKey) {
-        this.totpKey = totpKey;
-    }
 }

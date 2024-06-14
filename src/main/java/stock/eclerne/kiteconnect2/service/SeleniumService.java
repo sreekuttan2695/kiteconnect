@@ -1,52 +1,53 @@
 package stock.eclerne.kiteconnect2.service;
 
-import org.openqa.selenium.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 public class SeleniumService {
 
-    @Autowired
-    private ApiService apiService;
+    public String getRequestToken(String loginUrl, String userId, String password, String otp) {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\user\\Documents\\Code\\kiteconnect2\\drivers\\chromedriver.exe");
 
-    public String automateLoginAndGetTempToken() {
-        ApiDetails apiDetails = apiService.getApiDetails();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Run headless Chrome
+        WebDriver driver = new ChromeDriver(options);
 
-        // Setup WebDriver
-        WebDriver driver = new ChromeDriver();
-        driver.get(getLoginUrl());
+        try {
+            driver.get(loginUrl);
 
-        // Fill in the user ID
-        WebElement userIdField = driver.findElement(By.xpath("your_user_id_xpath"));
-        userIdField.sendKeys(apiDetails.getUserId());
+            WebElement userIdField = driver.findElement(By.xpath("//input[@id='userid']"));
+            WebElement passwordField = driver.findElement(By.xpath("//input[@id='password']"));
+            WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
 
-        // Fill in the password
-        WebElement passwordField = driver.findElement(By.xpath("your_password_xpath"));
-        passwordField.sendKeys(apiDetails.getPassword());
+            userIdField.sendKeys(userId);
+            passwordField.sendKeys(password);
+            loginButton.click();
 
-        // Fill in the TOTP
-        WebElement totpField = driver.findElement(By.xpath("your_totp_xpath"));
-        totpField.sendKeys(apiDetails.getTotpKey());
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement totpField = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@id='totp']")));
 
-        // Submit the form
-        WebElement loginButton = driver.findElement(By.xpath("your_login_button_xpath"));
-        loginButton.click();
+            // Generated the TOTP using the secret key from AccessTokenService class
+            totpField.sendKeys(otp);
 
-        // Capture the URL with the request token
-        String currentUrl = driver.getCurrentUrl();
-        driver.quit();
+            WebElement totpSubmitButton = driver.findElement(By.xpath("//button[@type='submit']"));
+            totpSubmitButton.click();
 
-        // Extract the request token from the URL
-        return extractRequestTokenFromUrl(currentUrl);
-    }
+            wait.until(ExpectedConditions.urlContains("request_token="));
+            String currentUrl = driver.getCurrentUrl();
 
-    private String getLoginUrl() {
-        // Retrieve the login URL using KiteService
-        return kiteService.getLoginUrl();
-    }
-
-    private String extractRequestTokenFromUrl(String url) {
-        // Implement your logic to extract the request token from the URL
+            String requestToken = currentUrl.split("request_token=")[1].split("&")[0];
+            return requestToken;
+        } finally {
+            driver.quit();
+        }
     }
 }

@@ -78,6 +78,11 @@
             <artifactId>selenium-devtools-v125</artifactId>
             <version>4.21.0</version>
         </dependency>
+        <dependency>
+            <groupId>de.taimos</groupId>
+            <artifactId>totp</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

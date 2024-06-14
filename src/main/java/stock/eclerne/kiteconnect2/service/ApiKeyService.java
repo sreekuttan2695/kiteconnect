@@ -11,7 +11,16 @@ public class ApiKeyService {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
 
-    public ApiKey getApiKey() {
-        return apiKeyRepository.getFirstApiKey();
+    public ApiKey getApiKeyDetails(String userId) {
+        return apiKeyRepository.findByUserId(userId);
     }
+
+    public ApiKey getApiKey() {
+        return apiKeyRepository.findFirstApiKey();
+    }
+
+    public void saveApiKey(ApiKey apiKey) {
+        apiKeyRepository.save(apiKey);
+    }
+
 }
