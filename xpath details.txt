@@ -1,0 +1,16 @@
+VCBX7Z5IA4CFOUMQIOCETES3MZGHXCVY
+
+//*[@id="userid"]
+/html/body/div[1]/div/div[2]/div[1]/div/div/div[2]/form/div[1]/input
+
+//*[@id="password"]
+/html/body/div[1]/div/div[2]/div[1]/div/div/div[2]/form/div[2]/input
+
+//*[@id="container"]/div/div/div[2]/form/div[4]/button
+/html/body/div[1]/div/div[2]/div[1]/div/div/div[2]/form/div[4]/button
+
+//*[@id="userid"]
+/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div[2]/form/div[1]/input
+
+//*[@id="container"]/div[2]/div/div[2]/form/div[2]/button
+/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div[2]/form/div[2]/button
