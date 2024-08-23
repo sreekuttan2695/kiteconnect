@@ -20,18 +20,23 @@ public class SeleniumService {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // Run headless Chrome
         WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
         try {
             driver.get(loginUrl);
 
-            WebElement userIdField = driver.findElement(By.xpath("//input[@id='userid']"));
-            WebElement passwordField = driver.findElement(By.xpath("//input[@id='password']"));
+
+            WebElement userIdField = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='userid']")));
+            WebElement passwordField = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='password']")));
+
+           // WebElement userIdField = driver.findElement(By.xpath("//input[@id='userid']"));
+           // WebElement passwordField = driver.findElement(By.xpath("//input[@id='password']"));
             WebElement loginButton = driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[2]/form/div[4]/button"));
             userIdField.sendKeys(userId);
             passwordField.sendKeys(password);
             loginButton.click();
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
             WebElement totpField = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/div[2]/div[1]/div[2]/div/div[2]/form/div[1]/input")));
 
             // Generated the TOTP using the secret key from AccessTokenService class

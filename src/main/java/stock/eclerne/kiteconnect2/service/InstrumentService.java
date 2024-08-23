@@ -51,6 +51,6 @@ public class InstrumentService {
     }
 
     public ArrayList<Long> getInstrumentToken(String tradingSymbol) throws IOException, KiteException {
-        return instrumentRepository.findInstrumentTokensByTradingSymbol("RELIANCE");
+        return instrumentRepository.findInstrumentTokensByTradingSymbol(tradingSymbol);
     }
 }

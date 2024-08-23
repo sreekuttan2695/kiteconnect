@@ -12,6 +12,7 @@ public class TickerDataService {
     private TickerDataRepository tickerDataRepository;
 
     public void saveTickerData(TickerData tickerData) {
+
         tickerDataRepository.save(tickerData);
     }
 }

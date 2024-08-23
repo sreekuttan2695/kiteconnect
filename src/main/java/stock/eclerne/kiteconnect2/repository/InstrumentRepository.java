@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface InstrumentRepository extends JpaRepository<InstrumentEntity, Long> {
 
-    @Query("SELECT i.instrumentToken FROM InstrumentEntity i WHERE i.tradingSymbol LIKE %:tradingSymbol%")
+    @Query("SELECT i.instrumentToken FROM InstrumentEntity i WHERE i.tradingSymbol LIKE %:tradingSymbol")
     ArrayList<Long> findInstrumentTokensByTradingSymbol(String tradingSymbol);
 }
