@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "HistoricalDataStg")
+@Table(name = "\"HistoricalDataStg\"") // Explicitly specify the table name
 public class HistoricalDataStg {
 
     @Id

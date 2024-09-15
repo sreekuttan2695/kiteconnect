@@ -16,6 +16,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.sql.Timestamp;
+
 @Service
 public class HistoricalDataService {
 
@@ -26,7 +30,7 @@ public class HistoricalDataService {
     private ApiKeyService apiKeyService;
 
     public void fetchAndStoreHistoricalData(String instrumentToken, Date fromDate) throws IOException, KiteException {
-        historicalDataRepository.truncateTable();
+        //historicalDataRepository.truncateTable();
 
         ApiKey apiKey = apiKeyService.getApiKey();
         KiteConnect kiteConnect = new KiteConnect(apiKey.getApiKey());
@@ -51,7 +55,34 @@ public class HistoricalDataService {
             for (HistoricalData data : historicalDataList) {
                 HistoricalDataStg historicalDataStg = new HistoricalDataStg();
                 historicalDataStg.setInstrumentToken(instrumentToken);
-                historicalDataStg.setTimestamp(Timestamp.valueOf(data.timeStamp));
+
+                // Check if data.timeStamp is null or empty before setting the timestamp
+                if (data.timeStamp != null && !data.timeStamp.isEmpty()) {
+                    try {
+                        // The correctedTimestamp includes timezone (e.g., +0530)
+                        String correctedTimestamp = data.timeStamp;
+
+                        if (correctedTimestamp.endsWith("+0530")) {
+                            correctedTimestamp = correctedTimestamp.replace("+0530", "+05:30");
+                        }
+
+                        // Parse the timestamp with offset
+                        OffsetDateTime offsetDateTime = OffsetDateTime.parse(correctedTimestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        // Convert to Timestamp and set it
+                        Timestamp timestamp = Timestamp.from(offsetDateTime.toInstant());
+
+                        // Set the timestamp in the entity
+                        historicalDataStg.setTimestamp(timestamp);
+                    } catch (Exception e) {
+                        // Handle the case where the timestamp format is incorrect
+                        System.err.println("Invalid timestamp format for data: " + data.timeStamp);
+                        historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis())); // Default to current time
+                    }
+                } else {
+                    // If the timestamp is null or empty, set the current time or skip this entry
+                    historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                }
+
                 historicalDataStg.setOpen(BigDecimal.valueOf(data.open));
                 historicalDataStg.setHigh(BigDecimal.valueOf(data.high));
                 historicalDataStg.setLow(BigDecimal.valueOf(data.low));
@@ -60,6 +91,7 @@ public class HistoricalDataService {
 
                 historicalDataRepository.save(historicalDataStg);
             }
+
 
             calendar.setTime(toDate);
             calendar.add(Calendar.DAY_OF_YEAR, 1);

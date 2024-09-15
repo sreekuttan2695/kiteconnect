@@ -8,7 +8,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
-
+//import io.github.bonigarcia.wdm.WebDriverManager; // Changed on 20240915 for chromedriver version out issue
 import java.time.Duration;
 
 @Service
@@ -16,6 +16,7 @@ public class SeleniumService {
 
     public String getRequestToken(String loginUrl, String userId, String password, String otp) {
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\user\\Documents\\Code\\kiteconnect2\\drivers\\chromedriver.exe");
+        //WebDriverManager.chromedriver().setup(); // This line replaces the manual chromedriver setup in the above line commented off
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // Run headless Chrome
