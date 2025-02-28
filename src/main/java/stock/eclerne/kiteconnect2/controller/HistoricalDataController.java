@@ -26,4 +26,24 @@ public class HistoricalDataController {
             return "Failed to fetch historical data: " + e.getMessage();
         }
     }
+    @GetMapping("/api/historical-day-data")
+    public String fetchHistoricalDayData(@RequestParam String instrumentToken, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fromDate) {
+        try {
+            historicalDataService.fetchAndStoreDailyHistoricalData(instrumentToken, fromDate);
+            return "Historical data fetched and stored successfully.";
+        } catch (IOException | KiteException e) {
+            return "Failed to fetch historical data: " + e.getMessage();
+        }
+    }
+    // New method to fetch specific day 5-minute candle data
+    @GetMapping("/api/historical-5min-specific-day")
+    public String fetchSpecificDay5MinCandleData(@RequestParam String instrumentToken, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date specificDate) {
+        try {
+            historicalDataService.fetchAndStoreSpecificDayHistoricalData(instrumentToken, specificDate);
+            return "5-minute candle data for the specific day fetched and stored successfully.";
+        } catch (IOException | KiteException e) {
+            return "Failed to fetch 5-minute candle data for the specific day: " + e.getMessage();
+        }
+    }
+
 }

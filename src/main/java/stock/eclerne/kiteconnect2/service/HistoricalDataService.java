@@ -29,9 +29,8 @@ public class HistoricalDataService {
     @Autowired
     private ApiKeyService apiKeyService;
 
+    // Existing method for 5-minute candle data
     public void fetchAndStoreHistoricalData(String instrumentToken, Date fromDate) throws IOException, KiteException {
-        //historicalDataRepository.truncateTable();
-
         ApiKey apiKey = apiKeyService.getApiKey();
         KiteConnect kiteConnect = new KiteConnect(apiKey.getApiKey());
         kiteConnect.setAccessToken(apiKey.getAccessToken());
@@ -50,38 +49,15 @@ public class HistoricalDataService {
             boolean continuous = false;
             boolean oi = false;
 
+            // Fetch 5-minute candle data
             List<HistoricalData> historicalDataList = kiteConnect.getHistoricalData(fromDate, toDate, instrumentToken, "5minute", continuous, oi).dataArrayList;
 
             for (HistoricalData data : historicalDataList) {
                 HistoricalDataStg historicalDataStg = new HistoricalDataStg();
                 historicalDataStg.setInstrumentToken(instrumentToken);
 
-                // Check if data.timeStamp is null or empty before setting the timestamp
-                if (data.timeStamp != null && !data.timeStamp.isEmpty()) {
-                    try {
-                        // The correctedTimestamp includes timezone (e.g., +0530)
-                        String correctedTimestamp = data.timeStamp;
-
-                        if (correctedTimestamp.endsWith("+0530")) {
-                            correctedTimestamp = correctedTimestamp.replace("+0530", "+05:30");
-                        }
-
-                        // Parse the timestamp with offset
-                        OffsetDateTime offsetDateTime = OffsetDateTime.parse(correctedTimestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                        // Convert to Timestamp and set it
-                        Timestamp timestamp = Timestamp.from(offsetDateTime.toInstant());
-
-                        // Set the timestamp in the entity
-                        historicalDataStg.setTimestamp(timestamp);
-                    } catch (Exception e) {
-                        // Handle the case where the timestamp format is incorrect
-                        System.err.println("Invalid timestamp format for data: " + data.timeStamp);
-                        historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis())); // Default to current time
-                    }
-                } else {
-                    // If the timestamp is null or empty, set the current time or skip this entry
-                    historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                }
+                // Handle the timestamp conversion
+                setTimestampForData(data, historicalDataStg);
 
                 historicalDataStg.setOpen(BigDecimal.valueOf(data.open));
                 historicalDataStg.setHigh(BigDecimal.valueOf(data.high));
@@ -92,10 +68,118 @@ public class HistoricalDataService {
                 historicalDataRepository.save(historicalDataStg);
             }
 
+            calendar.setTime(toDate);
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            fromDate = calendar.getTime();
+        }
+    }
+
+    // New method for daily candle data
+    public void fetchAndStoreDailyHistoricalData(String instrumentToken, Date fromDate) throws IOException, KiteException {
+        historicalDataRepository.truncateTable();
+        ApiKey apiKey = apiKeyService.getApiKey();
+        KiteConnect kiteConnect = new KiteConnect(apiKey.getApiKey());
+        kiteConnect.setAccessToken(apiKey.getAccessToken());
+
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+
+        while (fromDate.before(currentDate)) {
+            calendar.setTime(fromDate);
+            calendar.add(Calendar.DAY_OF_YEAR, 60);
+            Date toDate = calendar.getTime();
+            if (toDate.after(currentDate)) {
+                toDate = currentDate;
+            }
+
+            boolean continuous = false;
+            boolean oi = false;
+
+            // Fetch daily candle data
+            List<HistoricalData> historicalDataList = kiteConnect.getHistoricalData(fromDate, toDate, instrumentToken, "day", continuous, oi).dataArrayList;
+
+            for (HistoricalData data : historicalDataList) {
+                HistoricalDataStg historicalDataStg = new HistoricalDataStg();
+                historicalDataStg.setInstrumentToken(instrumentToken);
+
+                // Handle the timestamp conversion
+                setTimestampForData(data, historicalDataStg);
+
+                historicalDataStg.setOpen(BigDecimal.valueOf(data.open));
+                historicalDataStg.setHigh(BigDecimal.valueOf(data.high));
+                historicalDataStg.setLow(BigDecimal.valueOf(data.low));
+                historicalDataStg.setClose(BigDecimal.valueOf(data.close));
+                historicalDataStg.setVolume(data.volume);
+
+                historicalDataRepository.save(historicalDataStg);
+            }
 
             calendar.setTime(toDate);
             calendar.add(Calendar.DAY_OF_YEAR, 1);
             fromDate = calendar.getTime();
+        }
+    }
+
+    // New method to fetch and store 5-minute candle data for a specific day (9:15 AM to 3:30 PM)
+    public void fetchAndStoreSpecificDayHistoricalData(String instrumentToken, Date specificDate) throws IOException, KiteException {
+        ApiKey apiKey = apiKeyService.getApiKey();
+        KiteConnect kiteConnect = new KiteConnect(apiKey.getApiKey());
+        kiteConnect.setAccessToken(apiKey.getAccessToken());
+
+        // Set the from time to 9:15 AM and the to time to 3:30 PM on the same day
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(specificDate);
+        calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.set(Calendar.MINUTE, 15);
+        Date fromDate = calendar.getTime();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 15);
+        calendar.set(Calendar.MINUTE, 30);
+        Date toDate = calendar.getTime();
+
+        boolean continuous = false;
+        boolean oi = false;
+
+        // Fetch 5-minute candle data for the specific date
+        List<HistoricalData> historicalDataList = kiteConnect.getHistoricalData(fromDate, toDate, instrumentToken, "5minute", continuous, oi).dataArrayList;
+
+        // Store the historical data in the staging table
+        for (HistoricalData data : historicalDataList) {
+            HistoricalDataStg historicalDataStg = new HistoricalDataStg();
+            historicalDataStg.setInstrumentToken(instrumentToken);
+
+            // Handle the timestamp conversion
+            setTimestampForData(data, historicalDataStg);
+
+            historicalDataStg.setOpen(BigDecimal.valueOf(data.open));
+            historicalDataStg.setHigh(BigDecimal.valueOf(data.high));
+            historicalDataStg.setLow(BigDecimal.valueOf(data.low));
+            historicalDataStg.setClose(BigDecimal.valueOf(data.close));
+            historicalDataStg.setVolume(data.volume);
+
+            historicalDataRepository.save(historicalDataStg);
+        }
+    }
+
+
+    // Helper method for timestamp conversion
+    private void setTimestampForData(HistoricalData data, HistoricalDataStg historicalDataStg) {
+        if (data.timeStamp != null && !data.timeStamp.isEmpty()) {
+            try {
+                String correctedTimestamp = data.timeStamp;
+                if (correctedTimestamp.endsWith("+0530")) {
+                    correctedTimestamp = correctedTimestamp.replace("+0530", "+05:30");
+                }
+
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(correctedTimestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                Timestamp timestamp = Timestamp.from(offsetDateTime.toInstant());
+                historicalDataStg.setTimestamp(timestamp);
+            } catch (Exception e) {
+                System.err.println("Invalid timestamp format for data: " + data.timeStamp);
+                historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            }
+        } else {
+            historicalDataStg.setTimestamp(new Timestamp(System.currentTimeMillis()));
         }
     }
 }
