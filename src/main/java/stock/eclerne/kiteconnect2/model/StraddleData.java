@@ -38,4 +38,7 @@ public class StraddleData {
         this.updateCount = straddle.getUpdateCount();
         this.lastUpdateOn = straddle.getLastUpdateOn();
     }
+    public StraddleData() {
+        // Default constructor needed for manual object creation
+    }
 }

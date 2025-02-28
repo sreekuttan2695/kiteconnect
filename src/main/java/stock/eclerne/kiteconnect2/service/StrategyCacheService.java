@@ -37,6 +37,10 @@ public class StrategyCacheService {
             strategyCache.put(strategyCode, new StraddleData(straddles.get(0)));
         }
     }
+    public void updateStrategy(String strategyCode, StraddleData strategyData) {
+        strategyCache.put(strategyCode, strategyData);
+    }
+
 
     // Remove strategy from cache when it's deleted
     public void removeStrategy(String strategyCode) {
